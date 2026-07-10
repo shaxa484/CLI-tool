@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "tool":{
+    "port":9999
+  },
   "type": "commonjs",
   "dependencies": {
     "arg": "^5.0.2"
