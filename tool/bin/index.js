@@ -2,7 +2,8 @@
 import arg from 'arg';
 import chalk from 'chalk';
 import path from 'path';
-
+import getConfig from '../src/config/config-mgr.js'; 
+import start from '../src/commands/start.js';
 try{
     
     const args=arg({
@@ -12,17 +13,11 @@ try{
     });
 
     if(args['--start']){
-        const pkgPath = pkgUp.sync({cwd: process.cwd()});
-        const pkg = require(pkgPath);
-        if (pkg.tool) {
-      console.log('Found configuration', pkg.tool);
-      // TODO: do something with configuration
-    } else {
-      console.log(chalk.yellow('Could not find configuration, using default'));
-      // TODO: get default configuration
-    }
-        console.log(chalk.green('Starting the application...'));
-    }
+       const config = getConfig();
+       start(config);
+      
+    } 
+
     if(args['--build']){
         console.log(chalk.blue('Building the application...'));
     }
