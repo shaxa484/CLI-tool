@@ -10,6 +10,9 @@ function writeFile(filePath, content) {
         fs.mkdirSync(dir, { recursive: true });
     }
     fs.writeFileSync(filePath, content.trim() + '\n');
+}
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 
     export default async function initCommand() {
         const targetDir = process.cwd();
@@ -63,10 +66,21 @@ function writeFile(filePath, content) {
 
             console.log(chalk.gray('\n----------------------------------------'));
             console.log();
-            console.log(chalk.blue('⚒ Creating your workspace...'));
-            console.log();
+            console.log(chalk.blue('⚒ Generating project files...\n'));
+            const progressBar = new cliProgress.SingleBar({
+            format: chalk.cyan('Progress |') + chalk.magenta('{bar}') + '| {percentage}% || {info}',
+            barCompleteChar: '█',
+            barIncompleteChar: '░',
+            hideCursor: true
+        }, cliProgress.Presets.shades_classic);
+
+        progressBar.start(100, 0, { info: 'Preparing template...' });
+
+        await delay(300);
+        progressBar.update(20, { info: 'Creating structure...' });
 
             if (projectType === 'vanilla') {
+                await delay(200);
                 writeFile(path.join(targetDir, 'index.html'), `
 <!DOCTYPE html>
 <html lang="en">
@@ -82,7 +96,8 @@ function writeFile(filePath, content) {
     <script src="app.js"></script>
 </body>
 </html>`);
-
+                progressBar.update(50, { info: 'Writing index.html...' });
+                await delay(200);
                 writeFile(path.join(targetDir, 'style.css'), `
 body {
     font-family: sans-serif;
@@ -94,13 +109,14 @@ body {
     height: 100vh;
     margin: 0;
 }`);
-
+                progressBar.update(75, { info: 'Writing styles...' });
+                await delay(200);
                 writeFile(path.join(targetDir, 'app.js'), `
 console.log("Welcome to ${projectName}!");
 document.getElementById('app').innerText = "Vanilla JS Template initialized successfully!";`);
 
             } else if (projectType === 'node-backend') {
-                
+                await delay(200);
                 writeFile(path.join(targetDir, 'package.json'), JSON.stringify({
                     name: projectName.toLowerCase().replace(/\s+/g, '-'),
                     version: '1.0.0',
@@ -109,6 +125,8 @@ document.getElementById('app').innerText = "Vanilla JS Template initialized succ
                     scripts: { start: 'node src/index.js' },
                     dependencies: { express: '^4.19.2' }
                 }, null, 2));
+                progressBar.update(50, { info: 'Writing package.json...' });
+                await delay(200);
 
 
                 writeFile(path.join(targetDir, 'src/index.js'), `
@@ -122,10 +140,11 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(\`Server is running on http://localhost:\${PORT}\`);
-});`);
+});`);  
+            progressBar.update(90, { info: 'Writing Express server code...' });
 
             } else if (projectType === 'react') {
-
+                await delay(150);
                 writeFile(path.join(targetDir, 'package.json'), JSON.stringify({
                     name: projectName.toLowerCase().replace(/\s+/g, '-'),
                     version: '1.0.0',
@@ -134,7 +153,8 @@ app.listen(PORT, () => {
                     dependencies: { react: '^18.3.1', 'react-dom': '^18.3.1' },
                     devDependencies: { vite: '^5.3.1' }
                 }, null, 2));
-
+                progressBar.update(30, { info: 'Writing package.json...' });
+                await delay(150);
                 writeFile(path.join(targetDir, 'index.html'), `
 <!DOCTYPE html>
 <html lang="en">
@@ -147,7 +167,8 @@ app.listen(PORT, () => {
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>`);
-
+                progressBar.update(55, { info: 'Writing index.html...' });
+                await delay(150);
                 writeFile(path.join(targetDir, 'src/main.jsx'), `
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -158,7 +179,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>
 );`);
-
+                progressBar.update(75, { info: 'Configuring main.jsx...' });
+                await delay(150);
                 writeFile(path.join(targetDir, 'src/App.jsx'), `
 import React from 'react';
 
@@ -169,9 +191,10 @@ export default function App() {
     </div>
   );
 }`);
+                progressBar.update(90, { info: 'Configuring App.jsx...' });
             }
 
-
+            await delay(200);
             writeFile(path.join(targetDir, 'README.md'), `
 # ${projectName}
 
@@ -183,22 +206,34 @@ If your template has a \`package.json\`, run:
 npm install
 \`\`\`
 `);
-
+            progressBar.update(100, { info: 'Finished template generation!' });
+            progressBar.stop();
             console.log(chalk.green('✓ Generated template files successfully.'));
 
+            const spinner = ora({
+            text: 'Setting up Git repository...',
+            color: 'magenta'
+            }).start();
+            await delay(400);
             try {
                 execSync('git init', { stdio: 'ignore' });
                 console.log(chalk.green('✓ Initialized a local Git repository.'));
-
+                await delay(300);
                 if (gitHubUrl) {
                     execSync(`git remote add origin ${gitHubUrl}`, { stdio: 'ignore' });
                     console.log(chalk.green(`✓ Linked remote repository to origin: ${gitHubUrl}`));
+                    await delay(300);
+                    spinner.text = 'Creating initial commit...';
                     execSync('git branch -M main', { stdio: 'ignore' });
                     execSync('git add .', { stdio: 'ignore' });
                     execSync('git commit -m "Initial commit"', { stdio: 'ignore' });
-                    console.log(chalk.green('✓ Created initial commit.'));
-                    console.log(chalk.magentaBright('\n💡 Pro tip: Run "git push -u origin main" to publish online!'));
+                    await delay(300);
                 }
+                spinner.succeed('Git setup configured successfully!');
+
+                if (gitHubUrl) {
+                console.log(chalk.magentaBright('\n💡 Pro tip: Run "git push -u origin main" to publish online!'));
+            }
             } catch (gitError) {
                 console.log(chalk.yellow('⚠ Git initialization failed. Make sure git is installed and configured on your machine.'));
             }
@@ -207,7 +242,7 @@ npm install
 
 
             
-            console.log(chalk.green('\n✓ Successfully setup "${projectName}"! Have fun coding!'));
+            console.log(chalk.green(`\n✓ Successfully setup "${projectName}"! Have fun coding!`));
 
         } catch (error) {
             if (error.name === 'ExitPromptError') {
@@ -217,4 +252,3 @@ npm install
             }
         }
     }
-}
