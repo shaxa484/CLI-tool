@@ -197,6 +197,7 @@ npm install
                     execSync('git add .', { stdio: 'ignore' });
                     execSync('git commit -m "Initial commit"', { stdio: 'ignore' });
                     console.log(chalk.green('✓ Created initial commit.'));
+                    console.log(chalk.magentaBright('\n💡 Pro tip: Run "git push -u origin main" to publish online!'));
                 }
             } catch (gitError) {
                 console.log(chalk.yellow('⚠ Git initialization failed. Make sure git is installed and configured on your machine.'));
