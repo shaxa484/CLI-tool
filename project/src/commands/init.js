@@ -3,7 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { input, select, confirm } from '@inquirer/prompts';
-
+import cliProgress from 'cli-progress';
+import ora from 'ora';
 function writeFile(filePath, content) {
     const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
@@ -206,7 +207,8 @@ If your template has a \`package.json\`, run:
 npm install
 \`\`\`
 `);
-            progressBar.update(100, { info: 'Finished template generation!' });
+            progressBar.update(100, { info: '\nFinished template generation!' });
+            await delay(200);
             progressBar.stop();
             console.log(chalk.green('✓ Generated template files successfully.'));
 
@@ -229,7 +231,7 @@ npm install
                     execSync('git commit -m "Initial commit"', { stdio: 'ignore' });
                     await delay(300);
                 }
-                spinner.succeed('Git setup configured successfully!');
+                spinner.succeed(chalk.green('Git setup configured successfully!'));
 
                 if (gitHubUrl) {
                 console.log(chalk.magentaBright('\n💡 Pro tip: Run "git push -u origin main" to publish online!'));
