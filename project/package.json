@@ -5,6 +5,10 @@
   "bin": {
     "project": "./bin/index.js"
   },
+  "files": [
+    "bin",
+    "src"
+  ],
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
     "chalk": "^5.6.2",
