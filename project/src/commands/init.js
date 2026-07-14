@@ -186,19 +186,27 @@ npm install
 
             console.log(chalk.green('✓ Generated template files successfully.'));
 
+            try {
+                execSync('git init', { stdio: 'ignore' });
+                console.log(chalk.green('✓ Initialized a local Git repository.'));
 
-
-
-
-            if (initGit) {
-                try {
-                    execSync('git init', { stdio: 'ignore' });
-                    console.log(chalk.green('✓ Git repository initialized.'));
-                } catch (gitError) {
-                    console.log(chalk.yellow('Could not initialize Git. Is git installed on your system?'));
+                if (gitHubUrl) {
+                    execSync(`git remote add origin ${gitHubUrl}`, { stdio: 'ignore' });
+                    console.log(chalk.green(`✓ Linked remote repository to origin: ${gitHubUrl}`));
+                    execSync('git branch -M main', { stdio: 'ignore' });
+                    execSync('git add .', { stdio: 'ignore' });
+                    execSync('git commit -m "Initial commit"', { stdio: 'ignore' });
+                    console.log(chalk.green('✓ Created initial commit.'));
                 }
+            } catch (gitError) {
+                console.log(chalk.yellow('⚠ Git initialization failed. Make sure git is installed and configured on your machine.'));
             }
-            console.log(chalk.green('✓ Setup complete! Have fun coding!'));
+
+
+
+
+            
+            console.log(chalk.green('\n✓ Successfully setup "${projectName}"! Have fun coding!'));
 
         } catch (error) {
             if (error.name === 'ExitPromptError') {
@@ -208,3 +216,4 @@ npm install
             }
         }
     }
+}
