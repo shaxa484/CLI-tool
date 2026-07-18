@@ -14,7 +14,8 @@ npm install -g project-cli-bootstrap
 
 Navigate to an empty directory and initialize a new template:
 
-```project init
+```bash
+project init
 ```
 
 ---
